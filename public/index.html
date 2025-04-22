@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dani's Vault Checklist</title>
+  <style>
+    :root {
+      --primary-color: #5C6AC4;
+      --primary-dark: #4959BD;
+      --primary-light: #E6E8F7;
+      --secondary-color: #5C6AC4;
+      --secondary-dark: #4959BD;
+      --text-color: #212B36;
+      --text-light: #637381;
+      --background-light: #F4F6F8;
+      --border-color: #DFE3E8;
+      --success-color: #50B83C;
+      --warning-color: #FFB82E;
+      --error-color: #DE3618;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem;
+      color: var(--text-color);
+      background-color: #f4f6f8;
+    }
+    
+    h1, h2, h3 {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+    
+    h1 {
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+    
+    h2 {
+      margin-top: 2.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.5rem;
+      font-size: 1.5rem;
+    }
+    
+    .checklist-section {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--primary-color);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .checklist-section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .checklist-item {
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: flex-start;
+      padding: 0.5rem;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+
+    .checklist-item:hover {
+      background-color: var(--background-light);
+    }
+    
+    .checklist-item input[type="checkbox"] {
+      margin-right: 1rem;
+      margin-top: 0.25rem;
+      transform: scale(1.3);
+      cursor: pointer;
+    }
+    
+    .checklist-item label {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-left: 0.5rem;
+      cursor: help;
+      position: relative;
+      transition: background-color 0.2s ease;
+    }
+
+    .info-icon:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .tooltip {
+      display: none;
+      position: absolute;
+      background-color: white;
+      border: 1px solid var(--border-color);
+      padding: 1rem;
+      border-radius: 8px;
+      width: 300px;
+      font-size: 0.9rem;
+      color: var(--text-color);
+      font-weight: normal;
+      z-index: 100;
+      top: -5px;
+      left: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      line-height: 1.5;
+    }
+    
+    .progress-container {
+      margin: 2rem 0;
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: sticky;
+      top: 2rem;
+      z-index: 90;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .progress-bar {
+      width: 100%;
+      background-color: var(--background-light);
+      border-radius: 8px;
+      height: 1rem;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+    
+    .progress {
+      height: 100%;
+      background-color: var(--primary-color);
+      border-radius: 8px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    
+    .progress-text {
+      text-align: center;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      color: var(--text-light);
+    }
+    
+    .button-container {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      flex: 1;
+      font-weight: 500;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+    
+    button:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+    
+    .save-status {
+      margin-top: 1rem;
+      font-style: italic;
+      color: var(--text-light);
+      text-align: center;
+    }
+    
+    .section-progress {
+      float: right;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+    
+    .priority-selector {
+      margin-left: 2.5rem;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    
+    .priority-selector.show {
+      display: block;
+    }
+    
+    select {
+      padding: 0.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background-color: white;
+      color: var(--text-color);
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    select:hover {
+      border-color: var(--primary-color);
+    }
+    
+    .print-button {
+      background-color: var(--secondary-color);
+    }
+    
+    .print-button:hover {
+      background-color: var(--secondary-dark);
+    }
+    
+    @media print {
+      .progress-container, 
+      .button-container, 
+      .save-status,
+      button {
+        display: none;
+      }
+      
+      body {
+        padding: 0;
+        font-size: 12px;
+        background-color: white;
+      }
+      
+      .checklist-section {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border-left: 2px solid var(--primary-color);
+        box-shadow: none;
+      }
+      
+      .info-icon {
+        display: none;
+      }
+      
+      h1 {
+        font-size: 18px;
+      }
+      
+      h2 {
+        font-size: 16px;
+      }
+      
+      h3 {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .button-container {
+        flex-direction: column;
+      }
+
+      .tooltip {
+        width: 250px;
+      }
+    }
+
+    .token-container {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--primary-color);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .token-form {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .token-input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .token-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px var(--primary-light);
+    }
+
+    .token-submit {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .token-submit:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .token-status {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .token-status.success {
+      color: var(--success-color);
+    }
+
+    .token-status.error {
+      color: var(--error-color);
+    }
+
+    .url-form-container {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border-left: 4px solid var(--primary-color);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .url-input-group {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .url-input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .url-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px var(--primary-light);
+    }
+
+    .add-url-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .add-url-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .url-list {
+      margin-top: 1rem;
+    }
+
+    .url-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      background-color: var(--background-light);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .url-item-text {
+      flex: 1;
+      word-break: break-all;
+    }
+
+    .remove-url-btn {
+      background-color: var(--error-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .analyze-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      width: 100%;
+      margin-top: 1rem;
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .analyze-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .analyze-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      border: 2px solid var(--primary-light);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .results-container {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      border-left: 4px solid var(--primary-color);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .error-message {
+      color: var(--error-color);
+      margin-top: 1rem;
+      padding: 0.75rem;
+      background-color: #FEE2E2;
+      border-radius: 8px;
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load saved state if available
+      loadSavedState();
+      
+      // Add event listeners to all checkboxes
+      const checkboxes = document.querySelectorAll('.checkbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          updateProgress();
+          
+          // Show priority selector if project priority checkbox is checked
+          if (checkbox.id === 'check2') {
+            const prioritySelector = document.getElementById('priority-selector');
+            if (checkbox.checked) {
+              prioritySelector.classList.add('show');
+            } else {
+              prioritySelector.classList.remove('show');
+            }
+          }
+        });
+      });
+      
+      // Initial progress calculation
+      updateProgress();
+    });
+    
+    function updateProgress() {
+      const checkboxes = document.querySelectorAll('.checkbox');
+      const checkedBoxes = document.querySelectorAll('.checkbox:checked');
+      
+      const progressPercent = Math.round((checkedBoxes.length / checkboxes.length) * 100);
+      
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      const overallProgress = document.getElementById('overall-progress');
+      
+      progressBar.style.width = progressPercent + '%';
+      progressText.textContent = progressPercent + '% Complete';
+      overallProgress.textContent = checkedBoxes.length + '/' + checkboxes.length + ' (' + progressPercent + '%)';
+      
+      // Update section progress
+      const sections = [1, 2, 3, 4, 5];
+      sections.forEach(section => {
+        const sectionCheckboxes = document.querySelectorAll(`.checkbox[data-section="${section}"]`);
+        const sectionCheckedBoxes = document.querySelectorAll(`.checkbox[data-section="${section}"]:checked`);
+        
+        if (sectionCheckboxes.length > 0) {
+          const sectionProgressPercent = Math.round((sectionCheckedBoxes.length / sectionCheckboxes.length) * 100);
+          const sectionProgressElement = document.getElementById(`section${section}-progress`);
+          if (sectionProgressElement) {
+            sectionProgressElement.textContent = sectionCheckedBoxes.length + '/' + sectionCheckboxes.length + ' (' + sectionProgressPercent + '%)';
+          }
+        }
+      });
+    }
+    
+    function saveProgress() {
+      const checkboxes = document.querySelectorAll('.checkbox');
+      const checkedState = {};
+      
+      checkboxes.forEach(checkbox => {
+        checkedState[checkbox.id] = checkbox.checked;
+      });
+      
+      // Also save priority selection if applicable
+      const prioritySelect = document.getElementById('priority-select');
+      if (prioritySelect) {
+        checkedState['priority'] = prioritySelect.value;
+      }
+      
+      localStorage.setItem('vaultOptimizationChecklist', JSON.stringify(checkedState));
+      
+      const saveStatus = document.getElementById('save-status');
+      saveStatus.textContent = 'Progress saved! ' + new Date().toLocaleTimeString();
+    }
+    
+    function loadSavedState() {
+      const savedState = localStorage.getItem('vaultOptimizationChecklist');
+      
+      if (savedState) {
+        const checkedState = JSON.parse(savedState);
+        
+        Object.keys(checkedState).forEach(id => {
+          if (id === 'priority') {
+            const prioritySelect = document.getElementById('priority-select');
+            if (prioritySelect) {
+              prioritySelect.value = checkedState[id];
+            }
+          } else {
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+              checkbox.checked = checkedState[id];
+              
+              // Show priority selector if project priority checkbox is checked
+              if (id === 'check2' && checkedState[id]) {
+                const prioritySelector = document.getElementById('priority-selector');
+                prioritySelector.classList.add('show');
+              }
+            }
+          }
+        });
+      }
+    }
+    
+    function resetProgress() {
+      if (confirm('Are you sure you want to reset all progress?')) {
+        const checkboxes = document.querySelectorAll('.checkbox');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = false;
+        });
+        
+        // Reset priority selector
+        const prioritySelector = document.getElementById('priority-selector');
+        prioritySelector.classList.remove('show');
+        
+        const prioritySelect = document.getElementById('priority-select');
+        if (prioritySelect) {
+          prioritySelect.selectedIndex = 0;
+        }
+        
+        localStorage.removeItem('vaultOptimizationChecklist');
+        updateProgress();
+        
+        const saveStatus = document.getElementById('save-status');
+        saveStatus.textContent = 'Progress reset! ' + new Date().toLocaleTimeString();
+      }
+    }
+
+    // Add token management functionality
+    document.getElementById('tokenForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const token = document.getElementById('apiToken').value;
+      
+      // Save token to localStorage
+      localStorage.setItem('vaultApiToken', token);
+      
+      // Update status message
+      const statusElement = document.getElementById('tokenStatus');
+      statusElement.textContent = 'Token saved successfully!';
+      statusElement.className = 'token-status success';
+      
+      // Clear input
+      document.getElementById('apiToken').value = '';
+      
+      // Hide status message after 3 seconds
+      setTimeout(() => {
+        statusElement.textContent = '';
+        statusElement.className = 'token-status';
+      }, 3000);
+    });
+
+    // Load saved token if exists
+    const savedToken = localStorage.getItem('vaultApiToken');
+    if (savedToken) {
+      document.getElementById('apiToken').value = savedToken;
+    }
+
+    // URL management
+    const urlList = document.getElementById('urlList');
+    const addUrlBtn = document.getElementById('addUrlBtn');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    addUrlBtn.addEventListener('click', function() {
+      const urlInput = document.getElementById('vaultUrl');
+      const url = urlInput.value.trim();
+      
+      if (!url) return;
+      
+      const urlItem = document.createElement('div');
+      urlItem.className = 'url-item';
+      urlItem.innerHTML = `
+        <span class="url-item-text">${url}</span>
+        <button class="remove-url-btn">Remove</button>
+      `;
+      
+      urlList.appendChild(urlItem);
+      urlInput.value = '';
+      
+      // Add remove functionality
+      urlItem.querySelector('.remove-url-btn').addEventListener('click', function() {
+        urlItem.remove();
+        if (urlList.children.length === 0) {
+          analyzeBtn.disabled = true;
+        }
+      });
+      
+      analyzeBtn.disabled = false;
+    });
+
+    // Analysis functionality
+    analyzeBtn.addEventListener('click', async function() {
+      const token = localStorage.getItem('vaultApiToken');
+      if (!token) {
+        showError('Please enter and save your API token first');
+        return;
+      }
+
+      const urls = Array.from(urlList.querySelectorAll('.url-item-text'))
+        .map(item => item.textContent.trim());
+
+      if (urls.length === 0) {
+        showError('Please add at least one Vault URL');
+        return;
+      }
+
+      analyzeBtn.disabled = true;
+      analyzeBtn.innerHTML = '<span class="loading-spinner"></span> Analyzing...';
+
+      try {
+        console.log('Sending analyze request with:', { urls, hasToken: !!token });
+        const response = await fetch('/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            urls,
+            token 
+          }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          console.error('Analysis failed:', error);
+          throw new Error(error.error || 'Failed to analyze projects');
+        }
+
+        const data = await response.json();
+        console.log('Analysis successful:', data);
+        displayResults(data);
+      } catch (error) {
+        console.error('Analysis error:', error);
+        showError(error.message);
+      } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = 'Analyze Projects';
+      }
+    });
+
+    function showError(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = message;
+      resultsContainer.appendChild(errorDiv);
+      setTimeout(() => errorDiv.remove(), 5000);
+    }
+
+    function displayResults(data) {
+      resultsContainer.style.display = 'block';
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+
+      data.forEach(result => {
+        const projectDiv = document.createElement('div');
+        projectDiv.className = 'project-result';
+        projectDiv.innerHTML = `
+          <h3>${result.projectDetails.title}</h3>
+          <p>URL: ${result.projectDetails.url}</p>
+          <div class="checklist-results">
+            ${result.analysis.checklist.map(item => `
+              <div class="checklist-item ${item.status}">
+                <input type="checkbox" ${item.completed ? 'checked' : ''} disabled>
+                <label>${item.title}</label>
+                <p class="analysis-text">${item.analysis}</p>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        resultsDiv.appendChild(projectDiv);
+      });
+    }
+  </script>
+</head>
+<body>
+  <h1>Dani's Vault Checklist</h1>
+  
+  <div class="token-container">
+    <form id="tokenForm" class="token-form">
+      <input type="password" 
+             id="apiToken" 
+             class="token-input" 
+             placeholder="Enter your API token"
+             required>
+      <button type="submit" class="token-submit">Save Token</button>
+    </form>
+    <div id="tokenStatus" class="token-status"></div>
+  </div>
+
+  <div class="url-form-container">
+    <div class="url-input-group">
+      <input type="url" 
+             id="vaultUrl" 
+             class="url-input" 
+             placeholder="Enter Vault project URL"
+             required>
+      <button type="button" class="add-url-btn" id="addUrlBtn">Add URL</button>
+    </div>
+    <div class="url-list" id="urlList"></div>
+    <button type="button" class="analyze-btn" id="analyzeBtn">Analyze Projects</button>
+  </div>
+
+  <div class="results-container" id="resultsContainer" style="display: none;">
+    <h2>Analysis Results</h2>
+    <div id="results"></div>
+  </div>
+
+  <div class="progress-container">
+    <h3>Your Progress <span id="overall-progress" class="section-progress">0/0 (0%)</span></h3>
+    <div class="progress-bar">
+      <div class="progress" id="progress-bar"></div>
+    </div>
+    <div class="progress-text" id="progress-text">0% Complete</div>
+    
+    <div class="button-container">
+      <button onclick="saveProgress()">Save Progress</button>
+      <button onclick="resetProgress()">Reset Checklist</button>
+      <button onclick="window.print()" class="print-button">Print Checklist</button>
+    </div>
+    <div class="save-status" id="save-status"></div>
+  </div>
+  
+  <div class="checklist-section">
+    <h2>Project Basics <span id="section1-progress" class="section-progress">0/0 (0%)</span></h2>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="check1" class="checkbox" data-section="1">
+      <label for="check1">
+        Project title is descriptive, accurate, and avoids Shopify-specific acronyms
+        <span class="info-icon">i
+          <span class="tooltip">Use clear, descriptive language that anyone in the company can understand. Avoid acronyms like "PDP" or "SFAPI" without explanation. Example: "Shop App: Enable Product Recommendations" instead of "SA Recs Implementation".</span>
+        </span>
+      </label>
+    </div>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="check2" class="checkbox" data-section="1">
+      <label for="check2">
+        Project has a priority set
+        <span class="info-icon">i
+          <span class="tooltip">P0: Critical, company-level priority with executive visibility<br>P1: High priority, key to quarterly goals<br>P2: Medium priority, important but can be sequenced after P1s<br>P3: Low priority, nice-to-have</span>
+        </span>
+      </label>
+    </div>
+    <div class="priority-selector" id="priority-selector">
+      <select id="priority-select">
+        <option value="p0">P0 - Critical</option>
+        <option value="p1">P1 - High</option>
+        <option value="p2">P2 - Medium</option>
+        <option value="p3">P3 - Low</option>
+      </select>
+    </div>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="check3" class="checkbox" data-section="1">
+      <label for="check3">
+        Project has a Product ID (e.g., "Shop Sign In")
+        <span class="info-icon">i
+          <span class="tooltip">The Product ID should be a short, memorable name that can be used in conversations and documentation to refer to your project.</span>
+        </span>
+      </label>
+    </div>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="check4" class="checkbox" data-section="1">
+      <label for="check4">
+        Project has appropriate tags for discoverability
+        <span class="info-icon">i
+          <span class="tooltip">Include tags related to product area, technology, target audience, and strategic initiatives to make your project more discoverable.</span>
+        </span>
+      </label>
+    </div>
+  </div>
+  
+  <div class="checklist-section">
+    <h2>Project Status & Timeline <span id="section2-progress" class="section-progress">0/0 (0%)</span></h2>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="check5" class="checkbox" data-section="2">
+      <label for="check5">
+        Project is in the correct status (On Track, At Risk, Off Track)
+        <span class="info-icon">i
+          <span class="tooltip">On Track: Project is proceeding as planned<br>At Risk: Project has issues that may impact timeline or scope<br>Off Track: Project has significant issues affecting delivery</span>
+        </span>
+      </label>
+    </div>
+    
+    <div class="checklist-item">
+      <input type="checkbox" id="check6" class="checkbox" data-section="2">
+      <label for="check6">
+        Risks and blockers are accurately documented and marked if applicable
+        <span class="info-icon">i
+          <span class="tooltip">Clearly document any risks or blockers in your project</span>
+        </span>
+      </label>
+    </div>
+  </div>
+</body>
+</html>
